@@ -1,0 +1,2507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madura Island Adventure - Hotspot Interaktif (Final)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Murni (Tanpa Framework) */
+
+        /* ----- Global & Font ----- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+            
+            /* --- MODIFIKASI LATAR BELAKANG --- */
+            /* Gradasi baru: Kuning-Oranye */
+            background: linear-gradient(-45deg, #fffbeb, #fef3c7, #fdba74, #fb923c); 
+            background-size: 400% 400%; /* Ukuran yang lebih besar dari viewport */
+            animation: GradientChange 15s ease infinite; /* Animasi berulang selama 15 detik */
+        }
+        
+        /* Keyframes untuk Animasi Gradasi */
+        @keyframes GradientChange {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* ----- Header ----- */
+        header {
+            background-color: #92400e; 
+            border-bottom: 6px solid #451a03; 
+            color: #fef08a; 
+            padding: 1rem 0.5rem; 
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.2rem; 
+            text-shadow: 2px 2px #451a03;
+        }
+        
+        @media (min-width: 768px) {
+             header h1 { font-size: 1.5rem; }
+        }
+
+        /* ----- Utilitas Halaman & Transisi ----- */
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            padding: 1rem; 
+            transition: opacity 0.4s ease-in-out;
+        }
+        
+        @media (min-width: 768px) {
+            .page { padding: 1.5rem; }
+        }
+
+        .hidden { display: none; }
+
+        .fading-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ----- Tombol Umum ----- */
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: #92400e;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #16a34a; 
+            color: white;
+        }
+        
+        /* Modifikasi: Container Judul Peta */
+        .map-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        /* Modifikasi: Icon Etnik Madura */
+        .ethno-icon {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #ef4444; 
+            color: white;
+            padding: 5px 8px;
+            font-size: 0.8rem;
+            line-height: 1;
+            border: 2px solid #92400e;
+            box-shadow: 3px 3px 0px #451a03; 
+            margin: 0 10px;
+            transform: rotate(-5deg);
+            display: inline-block;
+        }
+
+        /* ----- Halaman Peta (#map-view) ----- */
+        #map-background {
+            position: relative;
+            width: 100%; 
+            max-width: 1000px;
+            height: 450px; 
+            margin: 1rem auto;
+            background-color: #fef08a; 
+            border: 3px solid #ca8a04; 
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            
+            /* SVG Outline Pulau Madura */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300"><path fill="%23fef9c3" stroke="%23fde047" stroke-width="2" d="M10 150 Q 100 80, 200 130 Q 250 150, 300 120 Q 400 80, 500 130 Q 550 150, 600 140 Q 680 120, 750 150 Q 700 180, 650 190 Q 500 220, 400 190 Q 300 180, 200 190 Q 100 200, 10 150 Z" /></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 90% 80%;
+            overflow: hidden; 
+        }
+        
+        @media (min-width: 768px) {
+            #map-background {
+                height: 600px; 
+                margin: 1.5rem auto;
+            }
+        }
+        
+        /* Gaya untuk SVG Garis Koneksi */
+        #connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10; 
+            pointer-events: none; 
+        }
+        
+        #connection-lines path {
+            stroke: #dc2626; 
+            stroke-width: 0.3; 
+            fill: none;
+            opacity: 1.0; 
+            transition: stroke-dashoffset 2s ease;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 70px; 
+            height: 80px; 
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, box-shadow 0.3s ease; 
+            z-index: 20; 
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); 
+            border-radius: 12px; 
+        }
+
+        .hotspot:hover {
+            transform: scale(1.1);
+            z-index: 30;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.8), 0 4px 10px rgba(0, 0, 0, 0.2); 
+        }
+
+        .hotspot.clicked {
+            transform: scale(1.5);
+            opacity: 0;
+            z-index: 19;
+            box-shadow: none;
+        }
+        
+        .hotspot-pin {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            width: 20px; 
+            height: 20px;
+            background-color: #dc2626; 
+            border-radius: 50% 50% 50% 0;
+            transform: translateX(-50%) rotate(-45deg); 
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .hotspot:hover .hotspot-pin {
+            transform: translateX(-50%) rotate(-45deg) translateY(-5px); 
+        }
+
+        .hotspot-pin::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px; 
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .hotspot-frame {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border: 4px solid #713f12; 
+            border-radius: 5px;
+            padding: 3px;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .hotspot-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hotspot-title {
+            position: absolute;
+            bottom: -15px; 
+            left: 50%;
+            transform: translateX(-50%);
+            background: #92400e; 
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px; 
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: center;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* ----- Halaman Detail (#detail-view) ----- */
+        #detail-view {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        #back-button {
+            margin-bottom: 1rem;
+        }
+
+        #detail-title {
+            color: #92400e;
+            text-shadow: 2px 2px #fef08a;
+            font-size: 1.5rem; 
+            margin: 1rem 0 1.5rem 0;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            #detail-title { font-size: 1.8rem; }
+        }
+
+        #detail-text {
+            font-size: 1rem; 
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 1.5rem; 
+            background: #fff;
+            padding: 1rem; 
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Galeri */
+        #detail-gallery {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem; 
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            #detail-gallery {
+                grid-template-columns: 2.5fr 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        #gallery-main-image {
+            width: 100%;
+            height: 250px; 
+            background-color: #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (min-width: 768px) {
+            #gallery-main-image { height: 400px; }
+        }
+
+        #gallery-main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+         #gallery-main-image img:hover {
+            transform: scale(1.05);
+         }
+
+        #gallery-thumbnails {
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem; 
+        }
+
+        @media (min-width: 768px) {
+            #gallery-thumbnails {
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: 400px;
+            }
+        }
+
+        .thumbnail {
+            width: 80px; 
+            height: 60px; 
+            border: 3px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+            flex-shrink: 0;
+        }
+         @media (min-width: 768px) {
+            .thumbnail {
+                width: 100%;
+                height: 80px;
+                border: 4px solid transparent;
+            }
+         }
+
+        .thumbnail:hover { border-color: #fde047; }
+        .thumbnail.active { border-color: #92400e; }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Mini-Game Containers */
+        .minigame-container {
+            border: 3px dashed #92400e;
+            border-radius: 12px;
+            padding: 1rem; 
+            background: #fffbeb;
+            margin-bottom: 2rem;
+            margin-top: 2rem; 
+        }
+        
+        .minigame-container h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #92400e;
+            font-size: 1.2rem; 
+        }
+        
+        /* Tambahan untuk hasil game */
+        .correct { background-color: #dcfce7; color: #16a34a; border: 1px solid #16a34a; }
+        .incorrect { background-color: #fee2e2; color: #dc2626; border: 1px solid #dc2626; }
+        .info { background-color: #f0f9ff; color: #3b82f6; border: 1px solid #3b82f6; }
+
+
+        /* KARAPAN SAPI CSS */
+        #race-track {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            background: #f7d698; 
+            border-radius: 8px;
+            border: 2px solid #e0c28b;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .cow {
+            position: absolute;
+            font-size: 2.5rem; 
+            transition: transform 0.3s linear; 
+            right: 10px; 
+        }
+        
+        #cow1 { top: 5px; transform: translateX(0); } 
+        #cow2 { top: 55px; transform: translateX(0); }
+
+        .finish-line {
+            position: absolute;
+            left: 5px; 
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: repeating-linear-gradient(#000, #000 5px, #fff 5px, #fff 10px);
+        }
+        
+        /* GARIS START */
+        .start-line {
+            position: absolute;
+            right: 5px; 
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background-color: white; 
+            box-shadow: 0 0 3px rgba(0,0,0,0.3); 
+        }
+        
+        #race-controls { text-align: center; }
+        
+        #race-result {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 1rem;
+            min-height: 1.2em;
+        }
+
+        /* TEBAK KATA CSS */
+        #guess-game-container {
+            border: 3px dashed #16a34a; 
+            background: #f0fdf4; 
+            display: none; 
+        }
+        
+        #guess-game-container h2 { color: #16a34a; }
+        
+        #word-display {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 2px solid #16a34a;
+            color: #333;
+            min-height: 2rem;
+            letter-spacing: 5px;
+        }
+        
+        #guess-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        #guess-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #guess-button { flex-grow: 1; }
+        
+        #guess-result {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 1rem;
+            min-height: 1.2em;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+        
+        /* MINI-GAME PAKAIAN */
+        #dress-up-game-container, #kebaya-dress-up-game-container {
+            border: 3px dashed #f59e0b; 
+            background: #fff7ed; 
+            display: none; 
+        }
+        
+        #dress-up-game-container h2, #kebaya-dress-up-game-container h2 {
+            color: #f59e0b;
+        }
+        
+        #clothing-puzzle, #kebaya-clothing-puzzle {
+            display: flex;
+            flex-direction: column; 
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 2px solid #f59e0b;
+        }
+        
+        .clothing-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .clothing-item:last-child { border-bottom: none; }
+        
+        .item-label {
+            font-weight: bold;
+            color: #92400e;
+            width: 100px; 
+            flex-shrink: 0;
+        }
+        
+        .item-choices {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .choice-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background-color: #fef3c7; 
+            color: #713f12;
+            transition: all 0.2s;
+        }
+        
+        .choice-btn:hover { background-color: #fde047; }
+        
+        .choice-btn.selected {
+            background-color: #92400e;
+            color: white;
+            border-color: #fef08a;
+        }
+        
+        .choice-btn.correct-choice {
+            background-color: #16a34a;
+            color: white;
+            border-color: #fff;
+        }
+        
+        .choice-btn.incorrect-choice {
+            background-color: #dc2626;
+            color: white;
+            border-color: #fff;
+        }
+        
+        #dress-up-controls, #kebaya-dress-up-controls { text-align: center; }
+        
+        #dress-up-result, #kebaya-dress-up-result {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-top: 1rem;
+            min-height: 1.2em;
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+
+        /* Style untuk tombol LANJUT ke game Kebaya */
+        #continue-to-kebaya-button {
+            margin-top: 1rem;
+            font-size: 1rem;
+            padding: 1rem 2rem;
+        }
+        
+        /* CSS BARU UNTUK MINI-GAME KABUPATEN */
+        /* Mini-Game Kuis (Untuk Bangkalan & Sumenep) */
+        .quiz-item {
+            border: 2px solid #ccc;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .quiz-question {
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            color: #451a03;
+        }
+        .quiz-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .quiz-choice-btn {
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .quiz-choice-btn:hover:not(:disabled) { background-color: #fef08a; }
+        
+        /* Penanda pilihan pengguna sebelum dicek */
+        .quiz-choice-btn.selected {
+             background-color: #fde047;
+             border-color: #92400e;
+        }
+        
+        /* Penanda jawaban BENAR setelah dicek (HIJAU) */
+        .quiz-choice-btn.selected-correct {
+            background-color: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+        
+        /* Penanda jawaban SALAH yang dipilih pengguna setelah dicek (MERAH) */
+        .quiz-choice-btn.selected-incorrect {
+            background-color: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        .quiz-choice-btn:disabled { opacity: 1; }
+        
+        #bangkalan-quiz-container, #sumenep-quiz-container {
+             border: 3px dashed #3b82f6; /* Biru */
+             background: #f0f9ff;
+             display: none;
+        }
+        #bangkalan-quiz-container h2, #sumenep-quiz-container h2 { color: #3b82f6; }
+
+        /* Mini-Game Mencocokkan (Untuk Sampang) */
+        #sampang-match-container {
+            border: 3px dashed #059669; /* Hijau Tua */
+            background: #ecfdf5;
+            display: none;
+        }
+        #sampang-match-container h2 { color: #059669; }
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #fff;
+            border: 2px solid #059669;
+        }
+        .match-pair {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .match-item, .match-target {
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .match-item {
+            background-color: #fef08a; /* Kuning */
+            border: 2px solid #92400e;
+            color: #92400e;
+        }
+        .match-item.selected {
+            background-color: #92400e;
+            color: white;
+            border-color: white;
+        }
+        .match-item.matched {
+            background-color: #16a34a;
+            color: white;
+            border-color: #fff;
+            cursor: default;
+        }
+        .match-target {
+            background-color: #f9f9f9;
+            border: 2px dashed #ccc;
+            color: #333;
+        }
+        .match-target.waiting-match {
+            border: 2px dashed #92400e;
+            background-color: #fefce8;
+        }
+
+        /* Mini-Game Urutan (Untuk Pamekasan) */
+        #pamekasan-puzzle-container {
+            border: 3px dashed #f97316; /* Oranye */
+            background: #fff7ed;
+            display: none;
+        }
+        #pamekasan-puzzle-container h2 { color: #f97316; }
+        #color-sequence {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            min-height: 50px;
+        }
+        .color-box {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .color-box.correct-order { box-shadow: 0 0 10px 3px #16a34a; }
+        .color-box:hover { transform: scale(1.1); }
+        #puzzle-options {
+             display: flex;
+             flex-wrap: wrap;
+             gap: 10px;
+             justify-content: center;
+             margin-top: 1rem;
+        }
+        
+        /* Modal */
+        #modal-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9); 
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #modal-view.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #modal-content {
+            position: relative;
+            background: white;
+            width: 95%; 
+            max-width: 900px;
+            max-height: 95vh; 
+            border-radius: 16px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+            transform: scale(0.8); 
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #modal-view.visible #modal-content { transform: scale(1); }
+
+        #modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 35px; 
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid white; 
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 110;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        
+        #modal-close-button:hover { background: rgba(220, 38, 38, 0.8); }
+
+        #modal-image {
+            width: 100%;
+            height: auto; 
+            max-height: 75vh; 
+            object-fit: contain; 
+            display: block;
+            background-color: black; 
+        }
+
+        #modal-caption {
+            padding: 1rem 1.5rem; 
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-y: auto; 
+            color: #333;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        
+        /* Gaya Khusus Tombol Kembali ke Menu di Peta */
+        #back-to-menu-button-2 { margin-bottom: 1rem; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="pixel-font">Madura Island Adventure</h1>
+    </header>
+
+    <main>
+        <section id="main-menu" class="page">
+            <div style="text-align: center; max-width: 600px; margin: 4rem auto 2rem; padding: 2rem; background: #fff; border-radius: 16px; border: 4px solid #92400e; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);">
+                <h2 class="pixel-font" style="font-size: 1.5rem; color: #dc2626; margin-bottom: 2rem;">Selamat Datang di Pulau Garam!</h2>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <button id="start-hotspot-button" class="btn btn-secondary pixel-font" style="padding: 1rem 2rem; font-size: 1rem;">
+                        MULAI PETUALANGAN &rarr;
+                    </button>
+                    <button id="show-credit-button" class="btn btn-primary pixel-font" style="background-color: #3b82f6;">
+                        TENTANG PEMBUAT (CREDIT)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="map-view" class="page hidden">
+            <button id="back-to-menu-button-2" class="btn btn-primary" aria-label="Kembali ke menu utama">&larr; Kembali ke Menu</button>
+            
+            <div class="map-title-container">
+                <span class="ethno-icon">🐂</span> 
+                <h2 style="font-size: 1.2rem;">Klik sebuah hotspot untuk menjelajah!</h2>
+                <span class="ethno-icon">⚓</span>
+            </div>
+            <div id="map-background">
+                <svg id="connection-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    </svg>
+            </div>
+        </section>
+        
+        <section id="credit-view" class="page hidden">
+            <button id="back-to-menu-button-1" class="btn btn-primary" aria-label="Kembali ke menu utama">&larr; Kembali ke Menu</button>
+            <h1 id="credit-title" class="pixel-font" style="text-align: center; color: #3b82f6; margin: 1.5rem 0;">Tentang Pembuat</h1>
+            <div style="max-width: 700px; margin: 0 auto; background: #fffbeb; padding: 2rem; border-radius: 12px; border: 3px solid #f97316;">
+                <p style="text-align: center; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: bold;">Proyek Web Interaktif</p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li style="margin-bottom: 0.75rem;"><strong>Nama Aplikasi:</strong> Madura Island Adventure</li>
+                    <li style="margin-bottom: 0.75rem;"><strong>Tujuan:</strong> Edukasi Budaya dan Geografi Pulau Madura</li>
+                    <li style="margin-bottom: 0.75rem;"><strong>Platform:</strong> HTML</li>
+                    <li style="margin-bottom: 0.75rem;"><strong>Oleh:</strong> Ksatria Andi Pamungkas XE-1 & Kennard Taqiy Wikana XE-2</li>
+                    <li style="margin-bottom: 0.75rem;"><strong>Tahun:</strong> 2025</li>
+                </ul>
+                <p style="margin-top: 2rem; text-align: center; font-style: italic; color: #92400e;">Terima kasih telah menjelajahi Madura!</p>
+            </div>
+        </section>
+
+        <section id="detail-view" class="page hidden">
+            <button id="back-button" class="btn btn-primary" aria-label="Kembali ke tampilan peta">&larr; Kembali ke Peta</button>
+            
+            <h1 id="detail-title" class="pixel-font">Judul Detail</h1>
+            
+            <p id="detail-text">Teks penjelasan akan muncul di sini...</p>
+
+            <h2 class="pixel-font" style="font-size: 1.2rem; text-align: center; margin-bottom: 1.5rem; color: #92400e;">Galeri Foto</h2>
+            <div id="detail-gallery">
+                <div id="gallery-main-image" role="button" aria-label="Gambar utama galeri. Klik untuk memperbesar.">
+                    </div>
+                <div id="gallery-thumbnails" role="list">
+                    </div>
+            </div>
+
+            <div id="bangkalan-quiz-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Gerbang Madura</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Uji pengetahuanmu tentang ikon Bangkalan!</p>
+                <div id="bangkalan-quiz-area">
+                    </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="bangkalan-check-button" class="btn btn-primary pixel-font" data-action="check">CEK JAWABAN</button>
+                </div>
+                <p id="bangkalan-quiz-result" aria-live="polite"></p>
+            </div>
+            
+            <div id="sampang-match-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Harta Karun Sampang</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Cocokkan hasil alam dengan deskripsinya!</p>
+                <div class="match-grid" id="sampang-match-grid">
+                    </div>
+                <p id="sampang-match-result" aria-live="polite" style="text-align: center; font-weight: bold; margin-top: 1rem;"></p>
+            </div>
+            
+            <div id="pamekasan-puzzle-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Warna Batik Pamekasan</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Susun urutan warna ikonik Batik Pamekasan!</p>
+                <div id="color-sequence">
+                    </div>
+                <div id="puzzle-options">
+                    </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="pamekasan-check-button" class="btn btn-primary pixel-font">CEK URUTAN</button>
+                    <button id="pamekasan-reset-button" class="btn btn-secondary" style="display:none;">ULANGI</button>
+                </div>
+                <p id="pamekasan-puzzle-result" aria-live="polite"></p>
+            </div>
+            
+            <div id="sumenep-quiz-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Keraton & Kepulauan</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Seberapa jauh kamu mengenal Sumenep?</p>
+                <div id="sumenep-quiz-area">
+                    </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="sumenep-check-button" class="btn btn-primary pixel-font">CEK JAWABAN</button>
+                </div>
+                <p id="sumenep-quiz-result" aria-live="polite"></p>
+            </div>
+
+            <div id="dress-up-game-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Kenakan Pesa'an!</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Pasangkan komponen Pakaian **Pesa'an (Pria)** Madura dengan deskripsi yang benar:</p>
+                
+                <div id="clothing-puzzle">
+                    <div class="clothing-item" data-part="baju">
+                        <span class="item-label">Baju Atas:</span>
+                        <div class="item-choices" data-part="baju">
+                            <button class="choice-btn" data-choice="hitam">Hitam Longgar</button>
+                            <button class="choice-btn" data-choice="batik">Batik Merah</button>
+                            <button class="choice-btn" data-choice="lurik">Lurik Coklat</button>
+                        </div>
+                    </div>
+                    
+                    <div class="clothing-item" data-part="celana">
+                        <span class="item-label">Celana:</span>
+                        <div class="item-choices" data-part="celana">
+                            <button class="choice-btn" data-choice="sarung">Sarung Kotak</button>
+                            <button class="choice-btn" data-choice="gomboran">Gomboran</button>
+                            <button class="choice-btn" data-choice="jeans">Jeans Biru</button>
+                        </div>
+                    </div>
+
+                    <div class="clothing-item" data-part="kepala">
+                        <span class="item-label">Ikat Kepala:</span>
+                        <div class="item-choices" data-part="kepala">
+                            <button class="choice-btn" data-choice="udeng">Udeng Bali</button>
+                            <button class="choice-btn" data-choice="blangkon">Blangkon</button>
+                            <button class="choice-btn" data-choice="odheng">Odheng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dress-up-controls">
+                    <button id="check-outfit-button" class="btn btn-primary pixel-font">CEK HASIL</button>
+                    <button id="reset-outfit-button" class="btn btn-secondary" style="display:none;">ULANGI</button>
+                </div>
+                <p id="dress-up-result" aria-live="polite"></p>
+                <div style="text-align: center;">
+                    <button id="continue-to-kebaya-button" class="btn btn-secondary pixel-font" style="display:none;">
+                        LANJUT KE KEBAYA RANCONGAN &rarr;
+                    </button>
+                </div>
+            </div>
+            
+            <div id="kebaya-dress-up-game-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Kenakan Kebaya Rancongan!</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Pasangkan komponen Pakaian **Kebaya Rancongan (Wanita)** Madura dengan deskripsi yang benar:</p>
+                
+                <div id="kebaya-clothing-puzzle">
+                    <div class="clothing-item" data-part="kebaya">
+                        <span class="item-label">Baju Atas:</span>
+                        <div class="item-choices" data-part="kebaya">
+                            <button class="choice-btn" data-choice="rancongan">Rancongan</button>
+                            <button class="choice-btn" data-choice="kartini">Kartini</button>
+                            <button class="choice-btn" data-choice="kutu_baru">Kutu Baru</button>
+                        </div>
+                    </div>
+                    
+                    <div class="clothing-item" data-part="bawahan">
+                        <span class="item-label">Bawahan:</span>
+                        <div class="item-choices" data-part="bawahan">
+                            <button class="choice-btn" data-choice="kain_panjang">Kain Panjang</button>
+                            <button class="choice-btn" data-choice="sarung_batik">Sarung Batik</button>
+                            <button class="choice-btn" data-choice="celana_gomboran">Celana Gomboran</button>
+                        </div>
+                    </div>
+
+                    <div class="clothing-item" data-part="selendang">
+                        <span class="item-label">Aksesoris:</span>
+                        <div class="item-choices" data-part="selendang">
+                            <button class="choice-btn" data-choice="selendang_merah">Selendang Merah</button>
+                            <button class="choice-btn" data-choice="keris">Keris</button>
+                            <button class="choice-btn" data-choice="sabuk">Sabuk Kulit</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="kebaya-dress-up-controls">
+                    <button id="kebaya-check-outfit-button" class="btn btn-primary pixel-font">CEK HASIL</button>
+                    <button id="kebaya-reset-outfit-button" class="btn btn-secondary" style="display:none;">ULANGI</button>
+                </div>
+                <p id="kebaya-dress-up-result" aria-live="polite"></p>
+                
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button id="back-to-pesaan-button" class="btn btn-secondary pixel-font" style="background-color: #713f12;">
+                        &larr; KEMBALI KE PESA'AN (PRIA)
+                    </button>
+                </div>
+            </div>
+
+            <div id="race-game-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Karapan Sapi</h2>
+                <div id="race-track">
+                    <div id="cow1" class="cow" role="img" aria-label="Sapi balap satu">🐃</div>
+                    <div id="cow2" class="cow" role="img" aria-label="Sapi balap dua">🐂</div>
+                    <div class="finish-line"></div>
+                    <div class="start-line"></div>
+                </div>
+                <div id="race-controls">
+                    <button id="race-button" class="btn btn-secondary pixel-font">RACE!</button>
+                </div>
+                <p id="race-result" aria-live="polite"></p>
+            </div>
+            
+            <div id="guess-game-container" class="minigame-container">
+                <h2 class="pixel-font">Mini-Game: Tebak Kata Madura</h2>
+                <p style="text-align: center; margin-bottom: 1rem;">Coba tebak terjemahan kata Madura di bawah ini!</p>
+                
+                <div id="word-display" class="pixel-font"></div>
+                
+                <input type="text" id="guess-input" placeholder="Tulis jawabanmu dalam Bahasa Indonesia..." disabled>
+                
+                <div id="guess-controls">
+                    <button id="guess-button" class="btn btn-primary">TEBAK</button>
+                    <button id="next-word-button" class="btn btn-secondary" disabled>LANJUT</button>
+                </div>
+                
+                <p id="guess-result" aria-live="polite"></p>
+            </div>
+
+        </section>
+    </main>
+
+    <div id="modal-view" role="dialog" aria-modal="true" aria-labelledby="modal-caption">
+        <div id="modal-content">
+            <button id="modal-close-button" aria-label="Tutup modal">&times;</button>
+            <img id="modal-image" src="https://placehold.co/800x600/eee/ccc?text=Image" alt="Gambar Detail">
+            <p id="modal-caption">Caption gambar akan muncul di sini...</p>
+        </div>
+    </div>
+
+    <script>
+        // Database Konten JavaScript
+        const hotspotDetails = {
+            pakaian: {
+                title: "Pakaian Adat",
+                mainText: "Pakaian adat Madura, terbagi menjadi 'Baju Pesa'an' (pria) dan 'Kebaya Rancongan' (wanita), adalah simbol keberanian dan status sosial. Pakaian Pria (Pesa'an) terdiri dari baju hitam longgar, celana 'gomboran', dan ikat kepala 'odheng'. Pakaian Wanita (Kebaya Rancongan) dicirikan dengan kebaya berpotongan rancongan dan sarung batik motif khas. Warna-warna cerah dan motif yang khas mencerminkan karakter orang Madura yang kuat dan ekspresif. Coba tes pengetahuanmu di mini-game di bawah! https://share.google/images/EOiXDFohqoqTuoKqN",
+                previewImg: "  https://c.termai.cc/i60/j6rIlF.jpg", 
+                gallery: [
+                    { img: "https://c.termai.cc/i91/UwDO7.jpg", caption: "Baju Pesa'an lengkap dengan celana gomboran hitam dan kaos bergaris merah-putih yang ikonik. https://share.google/images/o9Xi5ApbOICRZw4e1" },
+                    { img: " https://c.termai.cc/i12/dzDR.jpg", caption: "Kebaya Rancongan yang dipakai wanita Madura, seringkali dengan warna-warna cerah yang mencolok.https://share.google/images/mDGspaqELhYiaEjSG" },
+                    { img: "https://c.termai.cc/i20/wwQEtY.jpg", caption: "Detail Odheng, ikat kepala batik yang cara pemakaiannya memiliki makna filosofis tersendiri.https://share.google/images/mDGspaqELhYiaEjSG" }
+                ]
+            },
+            bangkalan: {
+                title: "Bangkalan",
+                mainText: "Sebagai 'Gerbang Madura', Bangkalan adalah kabupaten pertama yang Anda temui setelah melewati Jembatan Suramadu. Kota ini memiliki sejarah panjang sebagai pusat pemerintahan. Jangan lewatkan Mercusuar Sembilangan di ujung barat pulau dan kuliner khas 'Nasi Bebek Sinjay' yang terkenal. Uji pengetahuanmu di kuis di bawah! https://share.google/images/a8kda3M7jsAOFEFjj",
+                previewImg: "https://c.termai.cc/i80/rzV.jpg", 
+                gallery: [
+                    { img: " https://c.termai.cc/i86/m7FVHFI.jpg", caption: "Jembatan Suramadu yang megah, menghubungkan Surabaya dan Bangkalan, menjadi ikon utama. https://share.google/images/vLlfpDJ9DQHsrvOws" },
+                    { img: " https://c.termai.cc/i30/nIhht.jpg", caption: "Mercusuar Sembilangan yang bersejarah, berdiri kokoh di ujung barat Madura. https://share.google/images/pn2HdqRIYjke7iylQ" },
+                    { img: " https://c.termai.cc/i34/tLSt9c.webp", caption: "Kuliner wajib di Bangkalan, Nasi Bebek Sinjay, terkenal dengan sambalnya yang pedas. https://share.google/images/pn2HdqRIYjke7iylQ" }
+                ]
+            },
+            sampang: {
+                title: "Sampang",
+                mainText: "Sampang dikenal dengan keindahan alamnya, terutama Pantai Camplong yang menjadi destinasi favorit keluarga. Selain pantai, Sampang juga memiliki potensi garam berkualitas tinggi dan merupakan salah satu lumbung sapi di Madura. Kehidupan agraris dan pesisir sangat kental di sini. Coba cocokan produk khasnya di game di bawah! https://share.google/images/WgE6LV29AlhEAZx29",
+                previewImg: "https://c.termai.cc/i40/X5ySxbN.jpg", 
+                gallery: [
+                    { img: "https://c.termai.cc/i62/4ReC5X.jpg", caption: "Suasana santai di Pantai Camplong, Sampang, dengan pasir putih dan perahu nelayan. https://share.google/images/xFNTE2mXEytcKLTTD" },
+                    { img: " https://c.termai.cc/i17/4EYKz.jpg", caption: "Petani garam tradisional di Sampang, memproduksi garam berkualitas tinggi. https://share.google/images/LWevQMOAtt9TsV1My" }
+                ]
+            },
+            pamekasan: {
+                title: "Pamekasan",
+                mainText: "Pamekasan adalah jantung industri batik Madura. Batik Pamekasan terkenal dengan warnanya yang berani dan motif yang unik. Selain itu, Pamekasan memiliki fenomena alam 'Api Tak Kunjung Padam' di Larangan Tokol, sebuah api abadi yang keluar dari tanah. Mainkan puzzle warna batiknya di bawah! https://share.google/images/peQeEPl4nykO2xP5v",
+                previewImg: " https://c.termai.cc/i24/LKm3lI7.jpg", 
+                gallery: [
+                    { img: " https://c.termai.cc/i83/8Yq.jpg", caption: "Detail motif Batik Tulis Pamekasan yang rumit dan penuh warna. https://share.google/images/K3oUBXFOJix1fi4bH" },
+                    { img: " https://c.termai.cc/i45/nzIB.jpg", caption: "Fenomena alam Api Tak Kunjung Padam yang menjadi objek wisata unik. https://share.google/images/K3oUBXFOJix1fi4bH" },
+                    { img: "https://c.termai.cc/i41/9gKO.jpg", caption: "Monumen Arek Lancor di pusat kota Pamekasan, menjadi landmark penting. https://share.google/images/sr57ii3X2M3KGDMs6" }
+                ]
+            },
+            sumenep: {
+                title: "Sumenep",
+                mainText: "Sumenep di ujung timur Madura memiliki sejarah sebagai kerajaan yang kaya. Ini terlihat dari Keraton Sumenep yang megah dan Masjid Jamik. Sumenep juga gerbang menuju kepulauan cantik seperti Gili Iyang (pulau oksigen) dan Gili Labak. Coba kuis cepat di bawah ini! https://share.google/images/jCO7HXnIzQwvQzIOC",
+                previewImg: "   https://c.termai.cc/i67/0AE.jpg", 
+                gallery: [
+                    { img: "  https://c.termai.cc/i30/5QD.jpg", caption: "Arsitektur Keraton Sumenep yang megah, campuran budaya Jawa, Eropa, dan Tiongkok. https://share.google/images/DWF4gk5pdinnl4DWr" },
+                    { img: " https://c.termai.cc/i20/f27qG.jpg", caption: "Masjid Jamik Sumenep dengan arsitektur unik yang terinspirasi dari berbagai budaya. https://share.google/images/Vi7mrw3nXJngVibPb" },
+                    { img: " https://c.termai.cc/i73/g22.jpg", caption: "Keindahan bawah laut di Gili Labak atau Gili Iyang, surga tersembunyi di kepulauan Sumenep. https://share.google/images/F6Z435pWuSBAIoIin" }
+                ]
+            },
+            karapan: {
+                title: "Karapan Sapi",
+                mainText: "Karapan Sapi adalah budaya paling ikonik dari Madura. Ini bukan sekadar balapan, tapi juga pesta rakyat, ajang prestise, dan wujud syukur atas hasil panen. Sapi-sapi balap dirawat dengan istimewa dan dihias dengan indah sebelum berlomba di lintasan. https://share.google/images/vFfsNPRZrSWCHsFOP",
+                previewImg: "  https://c.termai.cc/i87/UoGV.jpg", 
+                gallery: [
+                    { img: " https://c.termai.cc/i37/gYk5.jpg", caption: "Joki mengendalikan sepasang sapi dalam kecepatan tinggi di lintasan balap. https://share.google/images/FEghhVq1zyXefkuds" },
+                    { img: " https://c.termai.cc/i29/IgK9OJj.jpg", caption: "Sapi-sapi dihias dengan pakaian 'sornat' yang meriah sebelum berlomba. https://share.google/images/luncSPI5WkG1u0N1b" },
+                    { img: "https://c.termai.cc/i92/3Di6uVP.jpg", caption: "Joki Karapan Sapi seringkali adalah anak-anak muda yang pemberani. https://share.google/images/Y292SotZhaR0bcMf4" }
+                ]
+            },
+            bahasa: {
+                title: "Bahasa",
+                mainText: "Bahasa Madura (Basa Madhura) adalah bahasa yang unik dengan sistem tingkatan tutur, mirip dengan Bahasa Jawa (enja'-iya, engghi-bunten, engghi-enten). Bahasa ini dituturkan oleh jutaan orang, tidak hanya di Madura tapi juga di 'Tapal Kuda' Jawa Timur. Logatnya yang tegas mencerminkan karakter masyarakatnya. Setelah membaca, jangan lupa coba main Tebak Kata di bawah! https://share.google/images/Mf0RKrwYRV8gpCbQt",
+                previewImg: "  https://c.termai.cc/i92/5RQ8h.jpg", 
+                gallery: [
+                    { img: " https://c.termai.cc/i87/cFGzlx.jpg", caption: "Belajar Bahasa Madura membuka wawasan baru tentang budaya dan masyarakatnya. https://share.google/images/ZBzsWzByjhdhfZlIs" },
+                    { img: "https://c.termai.cc/i83/kWQ8gH.jpg", caption: "Meskipun jarang digunakan, Madura juga memiliki aksara tradisional yang disebut 'Carakan'. https://share.google/images/HezO5W4MKVGTHpDy2" }
+                ]
+            }
+        };
+        
+        // **Koordinat Hotspot (dalam persentase)**
+        const hotspotLocations = {
+            bangkalan: { top: 35, left: 20 }, 
+            sampang: { top: 45, left: 40 }, 
+            pamekasan: { top: 30, left: 60 }, 
+            sumenep: { top: 40, left: 80 }, 
+            
+            pakaian: { top: 10, left: 15 }, 
+            karapan: { top: 75, left: 55 }, 
+            bahasa: { top: 15, left: 70 }  
+        };
+        
+        // **DATA Mini-Game Bahasa Madura**
+        const maduraWords = [
+            { madura: "Engghi", indo: "Iya", level: "Sopan" },
+            { madura: "Monika", indo: "Begini", level: "Halus" },
+            { madura: "Bâ'na", indo: "Kamu", level: "Kasar" },
+            { madura: "Sakèng", indo: "Dari", level: "Umum" },
+            { madura: "Nasek", indo: "Nasi", level: "Umum" },
+            { madura: "Dhibi'", indo: "Sendiri", level: "Umum" },
+            { madura: "Jâlân", indo: "Jalan", level: "Umum" },
+            { madura: "Langgâm", indo: "Lagak", level: "Umum" }
+        ];
+        
+        // **DATA Mini-Game Pakaian**
+        const correctOutfit = {
+            baju: "hitam",
+            celana: "gomboran",
+            kepala: "odheng"
+        };
+        
+        // **DATA BARU: Mini-Game Kebaya Rancongan**
+        const correctKebayaOutfit = {
+            kebaya: "rancongan",
+            bawahan: "sarung_batik",
+            selendang: "selendang_merah"
+        };
+        
+        // **DATA BARU: Mini-Game Bangkalan (Kuis)**
+        const bangkalanQuizData = [
+            {
+                question: "Julukan apa yang paling sering dikaitkan dengan Jembatan Suramadu?",
+                choices: ["Jembatan Nasional", "Jembatan Selat Madura", "Jembatan Penghubung Jawa-Madura", "Jembatan Terpanjang di Indonesia"],
+                answer: "Jembatan Penghubung Jawa-Madura"
+            },
+            {
+                question: "Dimana lokasi kuliner 'Nasi Bebek Sinjay' yang sangat populer?",
+                choices: ["Pamekasan", "Sumenep", "Bangkalan", "Sampang"],
+                answer: "Bangkalan"
+            },
+            {
+                question: "Apa nama mercusuar bersejarah yang terletak di ujung barat Bangkalan?",
+                choices: ["Mercusuar Kepulauan", "Mercusuar Sembilangan", "Mercusuar Tanjungbumi", "Mercusuar Arosbaya"],
+                answer: "Mercusuar Sembilangan"
+            }
+        ];
+        let bangkalanUserAnswers = {};
+        
+        // **DATA BARU: Mini-Game Sampang (Matching)**
+        const sampangMatchData = {
+            item1: { label: "Garam Krosok", match: "Laut, Industri" },
+            item2: { label: "Sapi Madura", match: "Ternak, Karapan" },
+            item3: { label: "Pantai Camplong", match: "Wisata Keluarga" },
+            item4: { label: "Tari Muang Sangkal", match: "Upacara Adat" }
+        };
+        let sampangSelected = { item: null, target: null };
+        let sampangMatched = {}; 
+        
+        // **DATA BARU: Mini-Game Pamekasan (Puzzle Urutan Warna)**
+        const pamekasanColors = [
+            { name: "Merah", hex: "#dc2626" },
+            { name: "Hitam", hex: "#171717" },
+            { name: "Kuning", hex: "#fde047" },
+            { name: "Biru Tua", hex: "#1e40af" }
+        ];
+        const correctPamekasanSequence = ["Merah", "Hitam", "Kuning", "Biru Tua"];
+        let pamekasanUserSequence = [];
+
+        // **DATA BARU: Mini-Game Sumenep (Kuis)**
+        const sumenepQuizData = [
+            {
+                question: "Pulau mana di Sumenep yang terkenal karena kadar oksigennya yang tinggi?",
+                choices: ["Gili Labak", "Gili Iyang", "Pulau Kangean", "Pulau Poteran"],
+                answer: "Gili Iyang"
+            },
+            {
+                question: "Situs bersejarah apa yang menjadi pusat Kerajaan Sumenep?",
+                choices: ["Benteng Vedel", "Keraton Sumenep", "Candi Penataran", "Masjid Agung"],
+                answer: "Keraton Sumenep"
+            }
+        ];
+        let sumenepUserAnswers = {};
+        
+
+        // Penanda DOM
+        const mapView = document.getElementById('map-view');
+        const detailView = document.getElementById('detail-view');
+        const modalView = document.getElementById('modal-view');
+        
+        // **DOM BARU**
+        const mainMenu = document.getElementById('main-menu');
+        const startHotspotButton = document.getElementById('start-hotspot-button');
+        const showCreditButton = document.getElementById('show-credit-button');
+        const creditView = document.getElementById('credit-view');
+        const backToMenuButton1 = document.getElementById('back-to-menu-button-1');
+        const backToMenuButton2 = document.getElementById('back-to-menu-button-2'); 
+
+        const mapBackground = document.getElementById('map-background');
+        const connectionLines = document.getElementById('connection-lines'); 
+
+        // Elemen Detail
+        const backButton = document.getElementById('back-button');
+        const detailTitle = document.getElementById('detail-title');
+        const detailText = document.getElementById('detail-text');
+        const galleryMainImage = document.getElementById('gallery-main-image');
+        const galleryThumbnails = document.getElementById('gallery-thumbnails');
+
+        // Elemen Modal
+        const modalContent = document.getElementById('modal-content');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const modalImage = document.getElementById('modal-image');
+        const modalCaption = document.getElementById('modal-caption');
+        
+        // Elemen Mini-Game Karapan Sapi
+        const raceGameContainer = document.getElementById('race-game-container');
+        const raceButton = document.getElementById('race-button');
+        const cow1 = document.getElementById('cow1');
+        const cow2 = document.getElementById('cow2');
+        const raceResult = document.getElementById('race-result');
+        const raceTrack = document.getElementById('race-track');
+        
+        // Elemen Mini-Game Tebak Kata
+        const guessGameContainer = document.getElementById('guess-game-container');
+        const wordDisplay = document.getElementById('word-display');
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-button');
+        const nextWordButton = document.getElementById('next-word-button');
+        const guessResult = document.getElementById('guess-result');
+
+        // Elemen Mini-Game Pesa'an
+        const dressUpGameContainer = document.getElementById('dress-up-game-container');
+        const checkOutfitButton = document.getElementById('check-outfit-button');
+        const resetOutfitButton = document.getElementById('reset-outfit-button');
+        const dressUpResult = document.getElementById('dress-up-result');
+        const clothingChoices = document.querySelectorAll('#clothing-puzzle .choice-btn');
+        const continueToKebayaButton = document.getElementById('continue-to-kebaya-button'); 
+
+        // Elemen Mini-Game Kebaya Rancongan (BARU)
+        const kebayaDressUpGameContainer = document.getElementById('kebaya-dress-up-game-container');
+        const kebayaCheckOutfitButton = document.getElementById('kebaya-check-outfit-button');
+        const kebayaResetOutfitButton = document.getElementById('kebaya-reset-outfit-button');
+        const kebayaDressUpResult = document.getElementById('kebaya-dress-up-result');
+        const kebayaClothingChoices = document.querySelectorAll('#kebaya-clothing-puzzle .choice-btn'); 
+        const backToPesaanButton = document.getElementById('back-to-pesaan-button'); // TOMBOL BARU
+        
+        // **ELEMEN BARU Mini-Game Kabupaten**
+        const bangkalanQuizContainer = document.getElementById('bangkalan-quiz-container');
+        const bangkalanQuizArea = document.getElementById('bangkalan-quiz-area');
+        const bangkalanCheckButton = document.getElementById('bangkalan-check-button');
+        const bangkalanQuizResult = document.getElementById('bangkalan-quiz-result');
+        
+        const sampangMatchContainer = document.getElementById('sampang-match-container');
+        const sampangMatchGrid = document.getElementById('sampang-match-grid');
+        const sampangMatchResult = document.getElementById('sampang-match-result');
+        
+        const pamekasanPuzzleContainer = document.getElementById('pamekasan-puzzle-container');
+        const colorSequence = document.getElementById('color-sequence');
+        const puzzleOptions = document.getElementById('puzzle-options');
+        const pamekasanCheckButton = document.getElementById('pamekasan-check-button');
+        const pamekasanResetButton = document.getElementById('pamekasan-reset-button');
+        const pamekasanPuzzleResult = document.getElementById('pamekasan-puzzle-result');
+
+        const sumenepQuizContainer = document.getElementById('sumenep-quiz-container');
+        const sumenepQuizArea = document.getElementById('sumenep-quiz-area');
+        const sumenepCheckButton = document.getElementById('sumenep-check-button');
+        const sumenepQuizResult = document.getElementById('sumenep-quiz-result');
+
+
+        // State Aplikasi
+        let currentHotspotData = null;
+        let activeGalleryItem = null;
+        let isRaceRunning = false;
+        let currentWordIndex = -1;
+        let userOutfit = {}; // Untuk Pesa'an
+        let userKebayaOutfit = {}; // Untuk Kebaya (BARU)
+        
+        // **Tambahkan variabel global untuk kecepatan**
+        let cow1Speed = 0;
+        let cow2Speed = 0;
+
+        
+        // **Koneksi PERMANEN yang BARU dan RAPI**
+        const permanentConnections = [
+            ['bangkalan', 'sampang'],
+            ['sampang', 'pamekasan'],
+            ['pamekasan', 'sumenep'],
+            
+            ['pakaian', 'bangkalan'], 
+            ['bangkalan', 'karapan'], 
+            ['karapan', 'sumenep'],    
+            ['sumenep', 'bahasa'],    
+            ['bahasa', 'karapan']      
+        ];
+
+
+        /**
+         * Fungsi untuk membuat dan menempatkan hotspot
+         */
+        function createHotspots() {
+            // Hapus semua hotspot lama, tapi biarkan SVG
+            const oldHotspots = mapBackground.querySelectorAll('.hotspot');
+            oldHotspots.forEach(hp => hp.remove());
+            
+            const keys = Object.keys(hotspotDetails);
+            
+            keys.forEach(key => {
+                const data = hotspotDetails[key];
+                const location = hotspotLocations[key]; 
+                
+                if (!location) return;
+                
+                const button = document.createElement('button');
+                button.className = 'hotspot';
+                button.dataset.key = key;
+                button.setAttribute('aria-label', `Lihat detail ${data.title}`); 
+
+                const adjustedTop = location.top; 
+                const adjustedLeft = location.left;
+                
+                // Hotspot menggunakan posisi persentase
+                button.style.top = `${adjustedTop}%`;
+                button.style.left = `${adjustedLeft}%`;
+                button.style.transform = 'translate(-50%, -50%)';
+
+                // **PERUBAHAN UTAMA DI SINI**
+                const previewSrc = data.previewImg || data.gallery[0].img; 
+                const altText = `Preview: ${data.title}`;
+
+                button.innerHTML = `
+                    <div class="hotspot-pin"></div>
+                    <div class="hotspot-frame">
+                        <img src="${previewSrc}" alt="${altText}">
+                    </div>
+                    <span class="hotspot-title">${data.title}</span>
+                `;
+                
+                button.addEventListener('click', onHotspotClick);
+                mapBackground.appendChild(button);
+            });
+            
+            // Gambar garis koneksi setelah hotspot dibuat
+            drawConnectionLines();
+        }
+        
+        /**
+         * FUNGSI MODIFIKASI: Menggambar jaringan benang yang PERMANEN
+         */
+        function drawConnectionLines() {
+            connectionLines.innerHTML = ''; // Bersihkan garis lama
+            let allPaths = [];
+            
+            // Tambahkan semua Koneksi Permanen
+            permanentConnections.forEach(([startKey, targetKey]) => {
+                const startLoc = hotspotLocations[startKey];
+                const targetLoc = hotspotLocations[targetKey];
+                
+                if (startLoc && targetLoc) {
+                    // Gunakan garis lurus (L) agar rapi
+                    let dPath = `M ${startLoc.left} ${startLoc.top} L ${targetLoc.left} ${targetLoc.top}`;
+                    allPaths.push(dPath);
+                }
+            });
+
+            
+            // Gabungkan dan Gambar semua path
+            allPaths.forEach((dPath, index) => {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', dPath);
+                path.setAttribute('id', `route-path-${index}`);
+                
+                connectionLines.appendChild(path);
+                
+                // Tambahkan animasi garis (stroke-dashoffset)
+                const pathLength = path.getTotalLength();
+                path.style.strokeDasharray = pathLength + ' ' + pathLength;
+                path.style.strokeDashoffset = pathLength;
+            });
+            
+            // Animasi untuk menunjukkan garis muncul
+            requestAnimationFrame(() => {
+                connectionLines.querySelectorAll('path').forEach(path => {
+                    path.style.strokeDashoffset = '0';
+                });
+            });
+        }
+
+        
+        /**
+         * Handler saat hotspot diklik
+         */
+        function onHotspotClick(e) {
+            const button = e.currentTarget;
+            const key = button.dataset.key;
+            
+            currentHotspotData = hotspotDetails[key];
+            
+            button.classList.add('clicked');
+            
+            setTimeout(() => {
+                showDetailView(key);
+            }, 300); 
+        }
+        
+        /**
+         * Menampilkan halaman detail
+         */
+        function showDetailView(key) {
+            mapView.classList.add('fading-out');
+            
+            setTimeout(() => {
+                mapView.classList.add('hidden'); 
+                mapView.classList.remove('fading-out'); 
+                
+                populateDetailView(key);
+                
+                detailView.classList.remove('hidden');
+                window.scrollTo(0, 0); 
+            }, 400); 
+        }
+        
+        /**
+         * Mengisi konten halaman detail berdasarkan currentHotspotData
+         */
+        function populateDetailView(key) {
+            if (!currentHotspotData) return;
+            
+            detailTitle.textContent = currentHotspotData.title;
+            detailText.textContent = currentHotspotData.mainText;
+            
+            galleryThumbnails.innerHTML = '';
+            
+            currentHotspotData.gallery.forEach((item, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = 'thumbnail';
+                thumb.dataset.index = index;
+                thumb.setAttribute('role', 'listitem');
+                thumb.setAttribute('aria-label', `Gambar galeri ${index + 1}: ${item.caption.substring(0, 30)}...`);
+
+                thumb.innerHTML = `<img src="${item.img}" alt="Thumbnail ${index + 1} dari ${currentHotspotData.title}">`;
+                
+                thumb.addEventListener('click', () => {
+                    setActiveGalleryImage(index);
+                });
+                
+                galleryThumbnails.appendChild(thumb);
+            });
+            
+            setActiveGalleryImage(0);
+            
+            // Atur tampilan Mini-Game
+            raceGameContainer.style.display = 'none';
+            guessGameContainer.style.display = 'none';
+            dressUpGameContainer.style.display = 'none';
+            kebayaDressUpGameContainer.style.display = 'none'; // BARU
+            
+            bangkalanQuizContainer.style.display = 'none';
+            sampangMatchContainer.style.display = 'none';
+            pamekasanPuzzleContainer.style.display = 'none';
+            sumenepQuizContainer.style.display = 'none';
+
+
+            if (key === 'karapan') {
+                raceGameContainer.style.display = 'block';
+                resetRace();
+            } else if (key === 'bahasa') {
+                guessGameContainer.style.display = 'block';
+                resetGuessGame();
+            } else if (key === 'pakaian') {
+                dressUpGameContainer.style.display = 'block';
+                resetDressUpGame(); 
+                // Awalnya Kebaya disembunyikan
+                kebayaDressUpGameContainer.style.display = 'none';
+                continueToKebayaButton.style.display = 'none';
+            } 
+            // **INIT GAME BARU KABUPATEN**
+            else if (key === 'bangkalan') {
+                bangkalanQuizContainer.style.display = 'block';
+                resetBangkalanQuiz();
+            } else if (key === 'sampang') {
+                sampangMatchContainer.style.display = 'block';
+                resetSampangMatchGame();
+            } else if (key === 'pamekasan') {
+                pamekasanPuzzleContainer.style.display = 'block';
+                resetPamekasanPuzzle();
+            } else if (key === 'sumenep') {
+                sumenepQuizContainer.style.display = 'block';
+                resetSumenepQuiz();
+            }
+        }
+        
+        /**
+         * Mengatur gambar aktif di galeri detail
+         */
+        function setActiveGalleryImage(index) {
+            if (!currentHotspotData) return;
+            
+            activeGalleryItem = currentHotspotData.gallery[index];
+            const altText = activeGalleryItem.caption;
+
+            // Update gambar utama
+            galleryMainImage.innerHTML = `<img src="${activeGalleryItem.img}" alt="${altText}">`;
+            galleryMainImage.querySelector('img').addEventListener('click', openModal);
+            
+            // Update class 'active' pada thumbnail
+            const allThumbs = galleryThumbnails.querySelectorAll('.thumbnail');
+            allThumbs.forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === parseInt(index));
+            });
+        }
+        
+        /**
+         * Menampilkan halaman peta (dari halaman detail)
+         */
+        function showMapView() {
+            detailView.classList.add('fading-out');
+            
+            setTimeout(() => {
+                detailView.classList.add('hidden');
+                detailView.classList.remove('fading-out');
+                
+                mapView.classList.remove('hidden');
+                
+                mapBackground.querySelectorAll('.hotspot.clicked').forEach(hp => {
+                    hp.classList.remove('clicked');
+                });
+                
+                // Panggil ulang drawConnectionLines (yang sekarang sudah permanen)
+                drawConnectionLines(); 
+                
+            }, 400);
+        }
+        
+        /**
+         * FUNGSI PENTING: Menampilkan halaman menu utama
+         */
+        function showMainMenu() {
+            // Sembunyikan semua selain main menu
+            mapView.classList.add('hidden');
+            detailView.classList.add('hidden');
+            creditView.classList.add('hidden');
+            
+            mainMenu.classList.remove('hidden');
+            window.scrollTo(0, 0); 
+        }
+        
+        /**
+         * Menampilkan halaman Peta (dari menu utama)
+         */
+        function showHotspotView() {
+            mainMenu.classList.add('fading-out');
+            
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                mainMenu.classList.remove('fading-out');
+                
+                mapView.classList.remove('hidden');
+                window.scrollTo(0, 0); 
+            }, 400); 
+        }
+        
+        function showCreditView() {
+             mainMenu.classList.add('fading-out');
+            
+            setTimeout(() => {
+                mainMenu.classList.add('hidden');
+                mainMenu.classList.remove('fading-out');
+                
+                creditView.classList.remove('hidden');
+                window.scrollTo(0, 0); 
+            }, 400); 
+        }
+        
+        /**
+         * Membuka modal pop-up
+         */
+        function openModal() {
+            if (!activeGalleryItem) return;
+            
+            modalImage.src = activeGalleryItem.img;
+            modalImage.alt = activeGalleryItem.caption; 
+            modalCaption.textContent = activeGalleryItem.caption;
+            
+            modalView.classList.add('visible');
+        }
+        
+        /**
+         * Menutup modal pop-up
+         */
+        function closeModal() {
+            modalView.classList.remove('visible');
+        }
+        
+        // --- LOGIKA KARAPAN SAPI YANG DIMODIFIKASI ---
+        
+        function startCountdown(seconds) {
+            let count = seconds;
+            raceButton.disabled = true;
+            
+            const countdownInterval = setInterval(() => {
+                if (count > 0) {
+                    raceButton.textContent = `Tunggu (${count})`;
+                    count--;
+                } else {
+                    clearInterval(countdownInterval);
+                    raceButton.disabled = false;
+                    raceButton.textContent = "RACE!";
+                    
+                    cow1.style.transform = 'translateX(0px)'; 
+                    cow2.style.transform = 'translateX(0px)';
+                    
+                    raceResult.textContent = "Siap untuk Karapan Sapi! 🐂🐃"; 
+                }
+            }, 1000); 
+        }
+
+
+        function runRace() {
+            if (isRaceRunning) return;
+            isRaceRunning = true;
+            
+            raceButton.disabled = true; 
+            raceButton.textContent = "BERLARI!";
+            raceResult.textContent = "Balapan sedang berlangsung... Awas ada yang mengejar!";
+            
+            // Reset posisi dan inisialisasi kecepatan
+            cow1.style.transform = 'translateX(0px)';
+            cow2.style.transform = 'translateX(0px)';
+            cow1Speed = 0;
+            cow2Speed = 0;
+            
+            const finishLine = raceTrack.clientWidth - 50; 
+            let cow1Offset = 0;
+            let cow2Offset = 0;
+            
+            const BASE_SPEED = 1.0; 
+            const RANDOM_FACTOR = 1.5; // Faktor acak diperbesar
+            const CATCH_UP_BONUS = 0.8; // Bonus kecepatan jika tertinggal
+            const WINNER_BOOST_RANGE = 0.95; // Pada 95% jarak, berikan dorongan ke salah satu
+            
+            // Tentukan siapa yang akan menang jauh (Sapi 1 atau Sapi 2)
+            const intendedWinner = Math.random() < 0.5 ? 'cow1' : 'cow2';
+            
+            function animateRace() {
+                if (!isRaceRunning) return;
+                
+                // 1. Hitung Kecepatan Dasar (dengan Random Factor)
+                cow1Speed = BASE_SPEED + Math.random() * RANDOM_FACTOR;
+                cow2Speed = BASE_SPEED + Math.random() * RANDOM_FACTOR;
+                
+                // 2. Logika Pengejaran Sengit (Catch-up)
+                const leadDistance = Math.abs(cow1Offset - cow2Offset);
+                const LAG_THRESHOLD = 50; // Jarak tertinggal sebelum bonus diaktifkan
+                
+                if (leadDistance > LAG_THRESHOLD) {
+                    if (cow1Offset < cow2Offset) {
+                        // Sapi 1 tertinggal, beri bonus
+                        cow1Speed += CATCH_UP_BONUS;
+                    } else {
+                        // Sapi 2 tertinggal, beri bonus
+                        cow2Speed += CATCH_UP_BONUS;
+                    }
+                }
+                
+                // 3. Dorongan Akhir (Winner Boost)
+                const progress = Math.max(cow1Offset, cow2Offset) / finishLine;
+                
+                if (progress > WINNER_BOOST_RANGE) {
+                    if (intendedWinner === 'cow1') {
+                        cow1Speed *= 1.5; // Dorongan besar untuk pemenang
+                        cow2Speed *= 0.8; // Sedikit perlambatan untuk yang kalah
+                    } else {
+                        cow2Speed *= 1.5; // Dorongan besar untuk pemenang
+                        cow1Speed *= 0.8; // Sedikit perlambatan untuk yang kalah
+                    }
+                }
+                
+                // 4. Update Posisi
+                cow1Offset += cow1Speed; 
+                cow2Offset += cow2Speed;
+                
+                cow1Offset = Math.min(cow1Offset, finishLine + 10); // Biarkan lewat sedikit
+                cow2Offset = Math.min(cow2Offset, finishLine + 10);
+                
+                cow1.style.transform = `translateX(${-cow1Offset}px)`;
+                cow2.style.transform = `translateX(${-cow2Offset}px)`;
+                
+                let winner = null;
+                
+                if (cow1Offset >= finishLine || cow2Offset >= finishLine) {
+                    isRaceRunning = false;
+                    
+                    const diff = Math.abs(cow1Offset - cow2Offset);
+                    
+                    if (cow1Offset > cow2Offset) {
+                         winner = `🐃 Sapi 1 Menang JAUH! (Selisih: ${diff.toFixed(2)}px)`;
+                    } else if (cow2Offset > cow1Offset) {
+                         winner = `🐂 Sapi 2 Menang JAUH! (Selisih: ${diff.toFixed(2)}px)`;
+                    } else {
+                         winner = "Seri! Kedua sapi mencapai garis finish bersamaan!";
+                    }
+
+                    raceResult.textContent = winner;
+                    
+                    // Atur agar tombol siap kembali setelah 5 detik
+                    startCountdown(5); 
+                    
+                    return;
+                }
+                
+                requestAnimationFrame(animateRace);
+            }
+            
+            requestAnimationFrame(animateRace);
+        }
+        
+        function resetRace() {
+            isRaceRunning = false;
+            raceButton.disabled = false;
+            raceButton.textContent = "RACE!";
+            raceResult.textContent = "Siap untuk Karapan Sapi! 🐂🐃";
+            cow1.style.transform = 'translateX(0px)';
+            cow2.style.transform = 'translateX(0px)';
+            cow1Speed = 0;
+            cow2Speed = 0;
+        }
+
+        // --- LOGIKA TEBAK KATA ---
+
+        function shuffleWords(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function resetGuessGame() {
+            shuffleWords(maduraWords);
+            currentWordIndex = -1;
+            guessResult.textContent = "Siap untuk bermain!";
+            guessResult.className = '';
+            nextWordButton.textContent = "MULAI";
+            nextWordButton.disabled = false;
+            guessButton.disabled = true;
+            guessInput.disabled = true;
+            guessInput.value = '';
+            wordDisplay.textContent = '???';
+        }
+        
+        function loadNextWord() {
+            currentWordIndex++;
+            if (currentWordIndex >= maduraWords.length) {
+                guessResult.textContent = "Selesai! Kamu sudah mencoba semua kata. Ulangi?";
+                guessResult.className = 'info';
+                guessButton.disabled = true;
+                nextWordButton.textContent = "ULANGI";
+                nextWordButton.disabled = false;
+                wordDisplay.textContent = 'MANTAP!';
+                guessInput.disabled = true;
+                return;
+            }
+            
+            const currentWord = maduraWords[currentWordIndex];
+            
+            wordDisplay.textContent = currentWord.madura.toUpperCase();
+            guessInput.value = '';
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+            nextWordButton.disabled = true;
+            guessButton.textContent = "TEBAK";
+            nextWordButton.textContent = "LANJUT";
+            guessResult.textContent = `Tebak arti kata ini! (Level: ${currentWord.level})`;
+            guessResult.className = 'info';
+            guessInput.focus();
+        }
+
+        function checkGuess() {
+            if (currentWordIndex < 0 || currentWordIndex >= maduraWords.length) return;
+            
+            const currentWord = maduraWords[currentWordIndex];
+            const userAnswer = guessInput.value.trim().toLowerCase();
+            const correctAnswer = currentWord.indo.trim().toLowerCase();
+            
+            if (userAnswer === correctAnswer) {
+                guessResult.textContent = `BENAR! "${currentWord.madura}" artinya "${currentWord.indo}".`;
+                guessResult.className = 'correct';
+            } else {
+                guessResult.textContent = `SALAH! Jawaban yang benar adalah "${currentWord.indo}".`;
+                guessResult.className = 'incorrect';
+            }
+            
+            guessInput.disabled = true;
+            guessButton.disabled = true;
+            nextWordButton.disabled = false;
+        }
+        
+        // --- LOGIKA PAKAIAN PESA'AN (PRIA) ---
+        
+        function resetDressUpGame() {
+            userOutfit = {};
+            dressUpResult.textContent = "Pilih satu komponen di setiap kategori.";
+            dressUpResult.className = 'info';
+            checkOutfitButton.disabled = false;
+            checkOutfitButton.style.display = 'inline-block';
+            resetOutfitButton.style.display = 'none';
+            continueToKebayaButton.style.display = 'none'; // Sembunyikan
+
+            clothingChoices.forEach(btn => {
+                btn.classList.remove('selected', 'correct-choice', 'incorrect-choice');
+                btn.disabled = false;
+            });
+        }
+        
+        function handleChoiceClick(e) {
+            const selectedButton = e.currentTarget;
+            const part = selectedButton.parentElement.dataset.part;
+            const choice = selectedButton.dataset.choice;
+
+            document.querySelectorAll(`#clothing-puzzle .item-choices[data-part="${part}"] .choice-btn`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            selectedButton.classList.add('selected');
+            userOutfit[part] = choice;
+            
+            dressUpResult.textContent = "Pilih satu komponen di setiap kategori.";
+            dressUpResult.className = 'info';
+            continueToKebayaButton.style.display = 'none';
+        }
+
+        function checkOutfit() {
+            if (Object.keys(userOutfit).length !== 3) {
+                dressUpResult.textContent = "Harap pilih satu komponen untuk Baju Atas, Celana, dan Ikat Kepala!";
+                dressUpResult.className = 'incorrect';
+                return;
+            }
+
+            let correctCount = 0;
+            
+            clothingChoices.forEach(btn => {
+                const part = btn.parentElement.dataset.part;
+                const choice = btn.dataset.choice;
+                
+                btn.classList.remove('selected', 'correct-choice', 'incorrect-choice');
+                btn.disabled = true;
+
+                if (correctOutfit[part] === choice) {
+                    btn.classList.add('correct-choice');
+                    if (userOutfit[part] === choice) {
+                        correctCount++;
+                    }
+                } else if (userOutfit[part] === choice) {
+                    btn.classList.add('incorrect-choice');
+                }
+            });
+
+            checkOutfitButton.style.display = 'none';
+            resetOutfitButton.style.display = 'inline-block';
+            
+            if (correctCount === 3) {
+                dressUpResult.textContent = `SELAMAT! Pakaian Pesa'an Lengkap! Tekan LANJUT untuk mencoba Kebaya Rancongan! 🎉`;
+                dressUpResult.className = 'correct';
+                continueToKebayaButton.style.display = 'inline-block'; // Tampilkan tombol lanjut
+            } else {
+                dressUpResult.textContent = `Hanya ${correctCount}/3 Komponen yang benar. Coba ulangi untuk mengetahui pakaian yang benar!`;
+                dressUpResult.className = 'incorrect';
+                continueToKebayaButton.style.display = 'none';
+            }
+        }
+        
+        // --- LOGIKA PAKAIAN KEBAYA RANCONGAN (WANITA) - BARU ---
+        
+        function startKebayaGame() {
+            dressUpGameContainer.style.display = 'none'; // Sembunyikan game Pesa'an
+            kebayaDressUpGameContainer.style.display = 'block'; // Tampilkan game Kebaya
+            resetKebayaGame();
+            window.scrollTo(0, document.body.scrollHeight); // Gulir ke bawah
+        }
+
+        function resetKebayaGame() {
+            userKebayaOutfit = {};
+            kebayaDressUpResult.textContent = "Pilih satu komponen di setiap kategori.";
+            kebayaDressUpResult.className = 'info';
+            kebayaCheckOutfitButton.disabled = false;
+            kebayaCheckOutfitButton.style.display = 'inline-block';
+            kebayaResetOutfitButton.style.display = 'none';
+
+            kebayaClothingChoices.forEach(btn => {
+                btn.classList.remove('selected', 'correct-choice', 'incorrect-choice');
+                btn.disabled = false;
+            });
+        }
+        
+        // Fungsi baru untuk Kembali ke Pesa'an
+        function backToPesaanGame() {
+            kebayaDressUpGameContainer.style.display = 'none';
+            dressUpGameContainer.style.display = 'block';
+            // Optional: Scroll ke bagian game Pesa'an
+            dressUpGameContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleKebayaChoiceClick(e) {
+            const selectedButton = e.currentTarget;
+            const part = selectedButton.parentElement.dataset.part;
+            const choice = selectedButton.dataset.choice;
+
+            document.querySelectorAll(`#kebaya-clothing-puzzle .item-choices[data-part="${part}"] .choice-btn`).forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            selectedButton.classList.add('selected');
+            userKebayaOutfit[part] = choice;
+            
+            kebayaDressUpResult.textContent = "Pilih satu komponen di setiap kategori.";
+            kebayaDressUpResult.className = 'info';
+        }
+
+        function checkKebayaOutfit() {
+            if (Object.keys(userKebayaOutfit).length !== 3) {
+                kebayaDressUpResult.textContent = "Harap pilih satu komponen untuk Baju Atas, Bawahan, dan Aksesoris!";
+                kebayaDressUpResult.className = 'incorrect';
+                return;
+            }
+
+            let correctCount = 0;
+            
+            kebayaClothingChoices.forEach(btn => {
+                const part = btn.parentElement.dataset.part;
+                const choice = btn.dataset.choice;
+                
+                btn.classList.remove('selected', 'correct-choice', 'incorrect-choice');
+                btn.disabled = true;
+
+                if (correctKebayaOutfit[part] === choice) {
+                    btn.classList.add('correct-choice');
+                    if (userKebayaOutfit[part] === choice) {
+                        correctCount++;
+                    }
+                } else if (userKebayaOutfit[part] === choice) {
+                    btn.classList.add('incorrect-choice');
+                }
+            });
+
+            kebayaCheckOutfitButton.style.display = 'none';
+            kebayaResetOutfitButton.style.display = 'inline-block';
+            
+            if (correctCount === 3) {
+                kebayaDressUpResult.textContent = `SEMUA BENAR! Kamu Berhasil Mengenakan Kebaya Rancongan Lengkap! 🎉`;
+                kebayaDressUpResult.className = 'correct';
+            } else {
+                kebayaDressUpResult.textContent = `Hanya ${correctCount}/3 Komponen yang benar. Coba ulangi untuk mengetahui pakaian yang benar!`;
+                kebayaDressUpResult.className = 'incorrect';
+            }
+        }
+        
+        // --- LOGIKA KUIS BANGKALAN & SUMENEP (YANG DIMODIFIKASI) ---
+        
+        function generateQuiz(data, container, userAnswers, prefix) {
+            container.innerHTML = '';
+            data.forEach((quiz, qIndex) => {
+                const quizItem = document.createElement('div');
+                quizItem.className = 'quiz-item';
+                quizItem.dataset.qIndex = qIndex; 
+                
+                const question = document.createElement('p');
+                question.className = 'quiz-question';
+                question.textContent = `${qIndex + 1}. ${quiz.question}`;
+                quizItem.appendChild(question);
+                
+                const choicesDiv = document.createElement('div');
+                choicesDiv.className = 'quiz-choices';
+                
+                quiz.choices.forEach(choice => {
+                    const choiceBtn = document.createElement('button');
+                    choiceBtn.className = 'quiz-choice-btn';
+                    choiceBtn.textContent = choice;
+                    choiceBtn.dataset.qIndex = qIndex;
+                    choiceBtn.dataset.choice = choice;
+                    
+                    // Tandai jika ini adalah jawaban yang tersimpan
+                    if (userAnswers[qIndex] === choice) {
+                        choiceBtn.classList.add('selected');
+                    }
+
+                    choiceBtn.addEventListener('click', (e) => {
+                        handleQuizChoice(e, userAnswers, prefix);
+                    });
+                    choicesDiv.appendChild(choiceBtn);
+                });
+                
+                quizItem.appendChild(choicesDiv);
+                container.appendChild(quizItem);
+            });
+            
+            // Atur status tombol check/reset
+            const checkButton = document.getElementById(`${prefix}-check-button`);
+            checkButton.textContent = "CEK JAWABAN";
+            checkButton.disabled = false;
+            checkButton.dataset.action = 'check'; // Reset status ke 'check'
+        }
+        
+        function handleQuizChoice(e, userAnswers, prefix) {
+            const selectedButton = e.currentTarget;
+            const qIndex = selectedButton.dataset.qIndex;
+            const choice = selectedButton.dataset.choice;
+            
+            // Hapus penanda 'selected' sebelumnya untuk pertanyaan ini
+            document.querySelectorAll(`#${prefix}-quiz-area button[data-q-index="${qIndex}"]`).forEach(btn => {
+                btn.classList.remove('selected');
+                btn.classList.remove('selected-correct'); // Pastikan penanda hasil bersih
+                btn.classList.remove('selected-incorrect');
+                btn.disabled = false;
+            });
+            
+            // Set pilihan baru
+            selectedButton.classList.add('selected');
+            userAnswers[qIndex] = choice;
+            
+            // Reset pesan hasil
+            document.getElementById(`${prefix}-quiz-result`).textContent = "Pilih semua jawaban sebelum cek!";
+            document.getElementById(`${prefix}-quiz-result`).className = 'info';
+            
+            // Atur kembali tombol ke mode check jika tombol terlanjur disabled (misal dari Sumenep)
+            document.getElementById(`${prefix}-check-button`).disabled = false;
+            document.getElementById(`${prefix}-check-button`).textContent = "CEK JAWABAN";
+            document.getElementById(`${prefix}-check-button`).dataset.action = 'check';
+        }
+        
+        /**
+         * FUNGSI MODIFIKASI: Memeriksa jawaban kuis dan menampilkan hasilnya
+         */
+        function checkQuiz(data, userAnswers, prefix) {
+            const quizResultElement = document.getElementById(`${prefix}-quiz-result`);
+            const checkButton = document.getElementById(`${prefix}-check-button`);
+            
+            let correctCount = 0;
+            let totalQuestions = data.length;
+            
+            if (Object.keys(userAnswers).length < totalQuestions) {
+                quizResultElement.textContent = `Harap jawab semua (${totalQuestions}) pertanyaan!`;
+                quizResultElement.className = 'incorrect';
+                return;
+            }
+            
+            document.querySelectorAll(`#${prefix}-quiz-area .quiz-choice-btn`).forEach(btn => {
+                btn.disabled = true; // Nonaktifkan semua tombol setelah cek
+                btn.classList.remove('selected'); // Hapus class sementara 'selected'
+                
+                const qIndex = btn.dataset.qIndex;
+                const choice = btn.dataset.choice;
+                const correctAnswer = data[qIndex].answer;
+                
+                if (choice === correctAnswer) {
+                    // Jawaban Benar
+                    btn.classList.add('selected-correct'); 
+                }
+                
+                if (userAnswers[qIndex] === choice) {
+                    // Jawaban yang dipilih pengguna
+                    if (choice === correctAnswer) {
+                        correctCount++;
+                    } else {
+                        btn.classList.add('selected-incorrect'); // Jawaban salah yang dipilih pengguna
+                    }
+                }
+            });
+            
+            // LOGIKA HASIL AKHIR
+            if (correctCount === totalQuestions) {
+                quizResultElement.textContent = `SEMUA BENAR! Skormu: ${correctCount}/${totalQuestions}! Selamat, kamu berhasil melewati Gerbang Madura! 🎉`;
+                quizResultElement.className = 'correct';
+                checkButton.textContent = "KUIS SELESAI";
+                checkButton.disabled = true; // Game Selesai
+                checkButton.dataset.action = 'finished';
+            } else {
+                quizResultElement.textContent = `Hanya ${correctCount}/${totalQuestions} yang benar. Jawaban yang benar (hijau) dan jawaban salahmu (merah) sudah ditandai. Tekan ULANGI KUIS untuk mencoba lagi!`;
+                quizResultElement.className = 'incorrect';
+                checkButton.textContent = "ULANGI KUIS";
+                checkButton.dataset.action = 'reset';
+            }
+        }
+        
+        /**
+         * Reset kuis Bangkalan
+         */
+        function resetBangkalanQuiz() {
+            bangkalanUserAnswers = {};
+            generateQuiz(bangkalanQuizData, bangkalanQuizArea, bangkalanUserAnswers, 'bangkalan');
+            bangkalanQuizResult.textContent = "Uji pengetahuanmu tentang ikon Bangkalan!";
+            bangkalanQuizResult.className = 'info';
+        }
+        
+        /**
+         * Reset kuis Sumenep
+         */
+        function resetSumenepQuiz() {
+            sumenepUserAnswers = {};
+            generateQuiz(sumenepQuizData, sumenepQuizArea, sumenepUserAnswers, 'sumenep');
+            sumenepQuizResult.textContent = "Seberapa jauh kamu mengenal Sumenep?";
+            sumenepQuizResult.className = 'info';
+        }
+        
+        // --- LOGIKA MATCHING SAMPANG ---
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function resetSampangMatchGame() {
+            sampangMatchGrid.innerHTML = '';
+            sampangSelected = { item: null, target: null };
+            sampangMatched = {}; 
+            sampangMatchResult.textContent = "Pilih item (kuning) lalu pasangkan dengan deskripsi (abu-abu).";
+            sampangMatchResult.className = 'info';
+            
+            const items = Object.keys(sampangMatchData).map(key => ({ id: key, label: sampangMatchData[key].label }));
+            const targets = Object.keys(sampangMatchData).map(key => ({ id: key, label: sampangMatchData[key].match }));
+            
+            shuffleArray(items);
+            shuffleArray(targets);
+            
+            const itemContainer = document.createElement('div');
+            itemContainer.className = 'match-pair';
+            const targetContainer = document.createElement('div');
+            targetContainer.className = 'match-pair';
+            
+            items.forEach(item => {
+                const itemBtn = document.createElement('button');
+                itemBtn.className = 'match-item';
+                itemBtn.textContent = item.label;
+                itemBtn.dataset.id = item.id;
+                itemBtn.addEventListener('click', handleMatchItemClick);
+                itemContainer.appendChild(itemBtn);
+            });
+            
+            targets.forEach(target => {
+                const targetBtn = document.createElement('button');
+                targetBtn.className = 'match-target';
+                targetBtn.textContent = target.label;
+                targetBtn.dataset.id = target.id;
+                targetBtn.addEventListener('click', handleMatchTargetClick);
+                targetContainer.appendChild(targetBtn);
+            });
+            
+            sampangMatchGrid.appendChild(itemContainer);
+            sampangMatchGrid.appendChild(targetContainer);
+        }
+        
+        function handleMatchItemClick(e) {
+            const button = e.currentTarget;
+            if (button.classList.contains('matched')) return; 
+
+            // Clear previous selection
+            if (sampangSelected.item) {
+                sampangSelected.item.classList.remove('selected');
+            }
+            
+            // Set new selection
+            sampangSelected.item = button;
+            button.classList.add('selected');
+            
+            sampangMatchResult.textContent = `Pilih deskripsi yang cocok untuk: ${button.textContent}`;
+            sampangMatchResult.className = 'info';
+            
+            // Highlight target yang belum matched
+            document.querySelectorAll('.match-target').forEach(target => {
+                if (!target.classList.contains('matched-target')) {
+                    target.classList.add('waiting-match');
+                }
+            });
+        }
+        
+        function handleMatchTargetClick(e) {
+            const button = e.currentTarget;
+            if (button.classList.contains('matched-target')) return; 
+
+            // Pastikan item sudah dipilih
+            if (!sampangSelected.item) {
+                sampangMatchResult.textContent = "Pilih item (kuning) terlebih dahulu!";
+                sampangMatchResult.className = 'incorrect';
+                return;
+            }
+            
+            // Cek kecocokan
+            const itemId = sampangSelected.item.dataset.id;
+            const targetId = button.dataset.id;
+            
+            if (itemId === targetId) {
+                // BENAR
+                sampangSelected.item.classList.remove('selected');
+                sampangSelected.item.classList.add('matched');
+                button.classList.add('matched-target');
+                button.classList.remove('waiting-match');
+                button.disabled = true;
+                sampangSelected.item.disabled = true;
+                
+                sampangMatched[itemId] = true;
+                
+                sampangMatchResult.textContent = `BENAR! ${sampangSelected.item.textContent} cocok dengan ${button.textContent}!`;
+                sampangMatchResult.className = 'correct';
+                
+                // Reset selection
+                sampangSelected.item = null;
+
+                // Cek selesai
+                if (Object.keys(sampangMatched).length === Object.keys(sampangMatchData).length) {
+                    sampangMatchResult.textContent = "SEMUA BENAR! Kamu adalah ahli sumber daya Sampang! 🎉";
+                    sampangMatchResult.className = 'correct';
+                }
+            } else {
+                // SALAH
+                sampangMatchResult.textContent = "SALAH! Coba lagi.";
+                sampangMatchResult.className = 'incorrect';
+                
+                // Hapus pilihan item
+                sampangSelected.item.classList.remove('selected');
+                sampangSelected.item = null;
+            }
+            
+            // Remove highlight target
+             document.querySelectorAll('.match-target').forEach(target => {
+                target.classList.remove('waiting-match');
+            });
+        }
+        
+        // --- LOGIKA PUZZLE PAMEKASAN ---
+
+        function resetPamekasanPuzzle() {
+            pamekasanUserSequence = [];
+            pamekasanPuzzleResult.textContent = "Pilih warna-warna di bawah sesuai urutan ikonik Batik Pamekasan.";
+            pamekasanPuzzleResult.className = 'info';
+            pamekasanCheckButton.style.display = 'inline-block';
+            pamekasanResetButton.style.display = 'none';
+
+            // Generate sequence boxes
+            colorSequence.innerHTML = '';
+            for (let i = 0; i < correctPamekasanSequence.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'color-box empty';
+                box.dataset.index = i;
+                box.style.backgroundColor = 'transparent';
+                colorSequence.appendChild(box);
+            }
+            
+            // Generate options buttons
+            puzzleOptions.innerHTML = '';
+            const shuffledColors = [...pamekasanColors];
+            shuffleArray(shuffledColors); // Acak untuk opsi
+            
+            shuffledColors.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-primary color-option-btn';
+                btn.textContent = color.name;
+                btn.dataset.color = color.name;
+                btn.style.backgroundColor = color.hex;
+                btn.addEventListener('click', handlePamekasanOptionClick);
+                puzzleOptions.appendChild(btn);
+            });
+        }
+        
+        function handlePamekasanOptionClick(e) {
+            const colorName = e.currentTarget.dataset.color;
+            const colorHex = e.currentTarget.style.backgroundColor;
+
+            if (pamekasanUserSequence.length < correctPamekasanSequence.length) {
+                const nextIndex = pamekasanUserSequence.length;
+                pamekasanUserSequence.push(colorName);
+                
+                // Update box di sequence
+                const targetBox = colorSequence.querySelector(`.color-box[data-index="${nextIndex}"]`);
+                if (targetBox) {
+                    targetBox.classList.remove('empty');
+                    targetBox.style.backgroundColor = colorHex;
+                    targetBox.style.borderColor = colorName === "Hitam" ? "#fff" : "#333";
+                }
+                
+                // Disable tombol yang dipilih
+                e.currentTarget.disabled = true;
+                
+                // Reset hasil jika tombol diklik ulang setelah cek
+                pamekasanPuzzleResult.textContent = "Pilih warna-warna di bawah sesuai urutan ikonik Batik Pamekasan.";
+                pamekasanPuzzleResult.className = 'info';
+
+                // Jika sudah penuh, otomatis cek
+                if (pamekasanUserSequence.length === correctPamekasanSequence.length) {
+                    checkPamekasanPuzzle();
+                }
+            }
+        }
+
+        function checkPamekasanPuzzle() {
+            let allCorrect = true;
+            let correctCount = 0;
+            
+            pamekasanCheckButton.style.display = 'none';
+            pamekasanResetButton.style.display = 'inline-block';
+            
+            // Non-aktifkan semua opsi
+            document.querySelectorAll('.color-option-btn').forEach(btn => btn.disabled = true);
+            
+            // Cek setiap box
+            colorSequence.querySelectorAll('.color-box').forEach((box, index) => {
+                const chosenColor = pamekasanUserSequence[index];
+                const correctColor = correctPamekasanSequence[index];
+                
+                if (chosenColor === correctColor) {
+                    box.classList.add('correct-order');
+                    correctCount++;
+                } else {
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect) {
+                pamekasanPuzzleResult.textContent = `URUTAN BENAR! Batik Pamekasan: Merah, Hitam, Kuning, Biru Tua. 🎉`;
+                pamekasanPuzzleResult.className = 'correct';
+            } else {
+                pamekasanPuzzleResult.textContent = `Hanya ${correctCount}/${correctPamekasanSequence.length} urutan yang benar. Coba ulangi!`;
+                pamekasanPuzzleResult.className = 'incorrect';
+            }
+        }
+
+        // --- Inisialisasi Aplikasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event Listener Umum
+            backButton.addEventListener('click', showMapView);
+            modalCloseButton.addEventListener('click', closeModal);
+            modalView.addEventListener('click', (e) => {
+                if (e.target === modalView) {
+                    closeModal();
+                }
+            });
+            
+            // **Event Listener untuk Navigasi Menu**
+            startHotspotButton.addEventListener('click', showHotspotView);
+            showCreditButton.addEventListener('click', showCreditView);
+            backToMenuButton1.addEventListener('click', showMainMenu); 
+            backToMenuButton2.addEventListener('click', showMainMenu); 
+
+            // Event Listener Karapan Sapi
+            raceButton.addEventListener('click', runRace);
+            
+            // Event Listener Tebak Kata
+            nextWordButton.addEventListener('click', () => {
+                if (nextWordButton.textContent === "ULANGI") {
+                    resetGuessGame();
+                    loadNextWord();
+                } else {
+                    loadNextWord();
+                }
+            });
+            guessButton.addEventListener('click', checkGuess);
+            guessInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !guessButton.disabled) {
+                    checkGuess();
+                }
+            });
+            
+            // Event Listener Pesa'an
+            clothingChoices.forEach(btn => {
+                btn.addEventListener('click', handleChoiceClick);
+            });
+            checkOutfitButton.addEventListener('click', checkOutfit);
+            resetOutfitButton.addEventListener('click', resetDressUpGame);
+            continueToKebayaButton.addEventListener('click', startKebayaGame); 
+
+            // Event Listener Kebaya Rancongan (BARU)
+            kebayaClothingChoices.forEach(btn => {
+                btn.addEventListener('click', handleKebayaChoiceClick);
+            });
+            kebayaCheckOutfitButton.addEventListener('click', checkKebayaOutfit);
+            kebayaResetOutfitButton.addEventListener('click', resetKebayaGame);
+            backToPesaanButton.addEventListener('click', backToPesaanGame); // EVENT BARU
+
+            
+            // **Event Listener MODIFIKASI Kabupaten (Bangkalan)**
+            bangkalanCheckButton.addEventListener('click', (e) => {
+                 // Cek jika tombol sedang dalam mode reset, cek, atau finished
+                 if (e.currentTarget.dataset.action === 'reset') {
+                    resetBangkalanQuiz();
+                    e.currentTarget.dataset.action = 'check';
+                 } else if (e.currentTarget.dataset.action === 'check') {
+                    checkQuiz(bangkalanQuizData, bangkalanUserAnswers, 'bangkalan');
+                 }
+                 // Jika 'finished' (benar semua), tombol disabled, tidak perlu ada aksi.
+            });
+            
+            pamekasanCheckButton.addEventListener('click', checkPamekasanPuzzle);
+            pamekasanResetButton.addEventListener('click', resetPamekasanPuzzle);
+            
+            sumenepCheckButton.addEventListener('click', (e) => {
+                if (e.currentTarget.dataset.action === 'reset') {
+                    resetSumenepQuiz();
+                    e.currentTarget.dataset.action = 'check';
+                 } else if (e.currentTarget.dataset.action === 'check') {
+                    checkQuiz(sumenepQuizData, sumenepUserAnswers, 'sumenep');
+                 }
+            });
+            
+            // Event Listener Sampang
+            // Tombol dan item diinisialisasi saat resetSampangMatchGame dipanggil, 
+            // jadi tidak perlu event listener global di sini
+
+            // Buat hotspot saat DOM siap
+            requestAnimationFrame(createHotspots);
+            
+            // Atur ulang hotspot dan garis jika ukuran window berubah
+            window.addEventListener('resize', () => {
+                if (!mapView.classList.contains('hidden')) {
+                    createHotspots(); 
+                }
+            });
+            
+            // Inisialisasi awal mini-game
+            resetRace();
+            resetGuessGame();
+            resetDressUpGame();
+            resetKebayaGame(); // BARU
+            
+            // **Inisialisasi Game Kabupaten**
+            resetBangkalanQuiz();
+            resetSampangMatchGame();
+            resetPamekasanPuzzle();
+            resetSumenepQuiz();
+            
+            // Mulai di Menu Utama
+            showMainMenu();
+        });
+        
+    </script>
+</body>
+</html>
